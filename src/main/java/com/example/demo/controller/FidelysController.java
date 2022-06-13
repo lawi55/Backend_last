@@ -197,10 +197,19 @@ EmailSenderService emailSenderService;
 
     @PostMapping("/achatmiles")
     public String achatmiles (@RequestBody Fidelys fidelys) throws Exception {
-
+        System.out.println(fidelys.getSolde());
         return fidelysService.achatMiles(fidelys);
+    }
+    @PostMapping("/achatmilesq")
+    public String achatmilesq (@RequestBody Fidelys fidelys) throws Exception {
+        System.out.println(fidelys.getSoldequa());
+        return fidelysService.achatMilesQ(fidelys);
+    }
 
-
+    @PostMapping("/upstatus")
+    public String upstatus (@RequestBody Fidelys fidelys) throws Exception {
+        System.out.println(fidelys.getSoldequa());
+        return fidelysService.upstatus(fidelys);
     }
 
 }

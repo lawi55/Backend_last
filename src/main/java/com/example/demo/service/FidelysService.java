@@ -61,15 +61,15 @@ public class FidelysService {
 
         } else {
             System.out.println(fidelys.getEmail());
-String message ="Bonjour\n" +
-        "Merci d’avoir adhérer à notre programme de fidélité Fidelys\n" +
-        "Votre identifiant est :"+fidelys.getId();
-           //  emailSenderService.sendSimpleEmail(fidelys.getEmail(),message);
-             if(fidelys.getFonction()==null){
-                 fidelys.setFonction("-");
-             }
-            if(fidelys.getSociete()==null){
-                fidelys.setSociete("-");
+            String message = "Bonjour\n" +
+                    "Merci d’avoir adhérer à notre programme de fidélité Fidelys\n" +
+                    "Votre identifiant est :" + fidelys.getId();
+            //  emailSenderService.sendSimpleEmail(fidelys.getEmail(),message);
+            if (fidelys.getFonction() == null) {
+                fidelys.setFonction("---");
+            }
+            if (fidelys.getSociete() == null) {
+                fidelys.setSociete("---");
             }
             fidelys.setAppUserRole(AppUserRole.user);
             fidelys.setStatus("Classique");
@@ -103,7 +103,7 @@ String message ="Bonjour\n" +
 
     public Fidelys updatepassword(int id, String password, String oldpassword) throws Exception {
         List<Fidelys> list = fidelysRepository.findById(id);
-        System.out.println(list.get(0).getEmail()+"weeeeee");
+        System.out.println(list.get(0).getEmail() + "weeeeee");
         boolean test = encoder.matches(oldpassword, list.get(0).getPassword());
         System.out.println(test);
         System.out.println(id);
@@ -251,46 +251,81 @@ String message ="Bonjour\n" +
         if (list.get(0).getSolde() < fidelys.getSolde()) {
             throw new Exception("Votre solde est insuffisant");
 
+        } else {
+            System.out.println(fidelys.getSolde() * 1 / 2);
+            return fidelys.getSolde() * 1 / 2;
         }
-        else{ System.out.println(fidelys.getSolde()*1/2);
-            return fidelys.getSolde()*1/2;}
 
     }
+
     @Autowired
     MouvementRepository mouvementRepository;
     String pattern = "dd/MM/yyyy";
-    String dateInString =new SimpleDateFormat(pattern).format(new Date());
+    String dateInString = new SimpleDateFormat(pattern).format(new Date());
+
     public String convertir(Fidelys fidelys) throws Exception {
         System.out.println(fidelys.getId());
         List<Fidelys> list = fidelysRepository.findById(fidelys.getId());
         System.out.println(list.get(0).getEmail());
-        long mq= Testersolde(fidelys);
-        list.get(0).setSolde(list.get(0).getSolde()-fidelys.getSolde());
-        list.get(0).setSoldequa( (list.get(0).getSoldequa()+mq));
-        Mouvement m = new Mouvement("Convertir Miles",0, (int) fidelys.getSolde(),fidelys.getId(),dateInString, (int) mq);
+        long mq = Testersolde(fidelys);
+        list.get(0).setSolde(list.get(0).getSolde() - fidelys.getSolde());
+        list.get(0).setSoldequa((list.get(0).getSoldequa() + mq));
+        Mouvement m = new Mouvement("Convertir Miles", 0, (int) fidelys.getSolde(), fidelys.getId(), dateInString, (int) mq);
         fidelysRepository.save(list.get(0));
         mouvementRepository.save(m);
         System.out.println("conversion effectuée");
         return "conversion effectuée";
     }
 
-    public String payment (Fidelys fidelys) throws Exception {
+    public String payment(Fidelys fidelys) throws Exception {
         List<Fidelys> list = fidelysRepository.findById(fidelys.getId());
-        list.get(0).setSolde(list.get(0).getSolde()-fidelys.getSolde());
-        Mouvement m = new Mouvement("Achat Billet Prime",0,fidelys.getSolde(),fidelys.getId(),0);
+        list.get(0).setSolde(list.get(0).getSolde() - fidelys.getSolde());
+        Mouvement m = new Mouvement("Achat Billet Prime", 0, (int) fidelys.getSolde(), fidelys.getId(), dateInString, 0);
         fidelysRepository.save(list.get(0));
         mouvementRepository.save(m);
         return "achat effectuée";
     }
 
-    public String achatMiles (Fidelys fidelys) throws Exception {
+    public String achatMiles(Fidelys fidelys) throws Exception {
+        System.out.println(fidelys.getSolde());
         List<Fidelys> list = fidelysRepository.findById(fidelys.getId());
-        list.get(0).setSolde(list.get(0).getSolde()+fidelys.getSolde());
-        Mouvement m = new Mouvement("Achat Miles",(int) fidelys.getSolde(),0,fidelys.getId(),0);
+        list.get(0).setSolde(list.get(0).getSolde() + fidelys.getSolde());
+        Mouvement m = new Mouvement("Achat Miles Prime", (int) fidelys.getSolde(), 0, fidelys.getId(), dateInString, 0);
         fidelysRepository.save(list.get(0));
         mouvementRepository.save(m);
         return "achat effectuée";
     }
 
+    public String achatMilesQ(Fidelys fidelys) throws Exception {
+        System.out.println(fidelys.getSolde());
+        List<Fidelys> list = fidelysRepository.findById(fidelys.getId());
+        list.get(0).setSoldequa(list.get(0).getSoldequa() + fidelys.getSolde());
+        Mouvement m = new Mouvement("Achat Miles Status", 0, 0, fidelys.getId(), dateInString, (int) fidelys.getSolde());
+        fidelysRepository.save(list.get(0));
+        mouvementRepository.save(m);
+        return "achat effectuée";
+    }
 
-}
+    public String upstatus (Fidelys fidelys) throws Exception {
+        System.out.println(fidelys.getId());
+        List<Fidelys> list = fidelysRepository.findById(fidelys.getId());
+        list.get(0).getFirstname();
+        if (list.get(0).getSoldequa() >= 20000) {
+        list.get(0).setBanner("assets/images/bannersilver.png");
+        list.get(0).setStatus("Silver");
+        list.get(0).setCard("assets/images/silver.png");
+            fidelysRepository.save(list.get(0));
+        }
+        if (list.get(0).getSoldequa() >= 40000) {
+        list.get(0).setBanner("assets/images/bannergold.png");
+        list.get(0).setStatus("Gold");
+        list.get(0).setCard("assets/images/gold.png");
+            fidelysRepository.save(list.get(0));
+        }
+        fidelysRepository.save(list.get(0));
+        return"Congrats";
+
+    }}
+
+
+
